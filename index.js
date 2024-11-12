@@ -1,9 +1,11 @@
 const express = require('express');
 const { Pool } = require('pg');
+require('dotenv').config();
+
+const { seedDatabase } = require('./seed.js');
+
 const app = express();
 const PORT = 3000;
-
-require('dotenv').config();
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -24,6 +26,16 @@ pool.connect((err, client, release) => {
     }
     console.log('Connection to PostgreSQL successful:', result.rows);
   });
+});
+
+app.get('/seed', async (req, res) => {
+  try {
+    await seedDatabase();
+    res.send('Database seeded successfully!');
+  } catch (error) {
+    console.error('Error seeding the database:', error);
+    res.status(500).send('Error seeding the database');
+  }
 });
 
 app.get('/', (req, res) => {
