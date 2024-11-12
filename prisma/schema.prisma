@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,8 +8,50 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  userId      String       @id @default(uuid())
+  name        String
+  email       String       @unique
+  password    String
+  avatar      String?
+  friends     UserFriends[] @relation("UserToFriends")
+  friendOf    UserFriends[] @relation("FriendToUser")
+  ChatUsers   ChatUser[]
+  ChatMessages ChatMessage[]
+}
+
+model UserFriends {
+  userId    String @id
+  friendId  String
+  user      User   @relation("UserToFriends", fields: [userId], references: [userId])
+  friend    User   @relation("FriendToUser", fields: [friendId], references: [userId])
+
+  @@unique([userId, friendId])
+}
+
+model Chat {
+  chatId    String      @id @default(uuid())
   name      String
-  email     String   @unique
-  createdAt DateTime @default(now())
+  avatar    String?
+  chatUsers ChatUser[]
+  messages  ChatMessage[]
+}
+
+model ChatMessage {
+  chatMessageId String  @id @default(uuid())
+  chat          Chat    @relation(fields: [chatId], references: [chatId])
+  chatId        String
+  user          User    @relation(fields: [userId], references: [userId])
+  userId        String
+  chatUsers     ChatUser[]
+}
+
+model ChatUser {
+  chatUserId     String      @id @default(uuid())
+  chatMessage    ChatMessage @relation(fields: [chatMessageId], references: [chatMessageId])
+  chatMessageId  String      @unique
+  chat           Chat        @relation(fields: [chatId], references: [chatId])
+  chatId         String
+  user           User        @relation(fields: [userId], references: [userId])
+  userId         String
+  isViewed       Boolean
 }
