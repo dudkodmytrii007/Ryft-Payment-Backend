@@ -14,10 +14,10 @@ async function seedDatabase() {
   console.log('All data has been deleted from tables.');
 
   const users = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 20; i++) {
     const user = await prisma.user.create({
       data: {
-        name: faker.name.firstName(),
+        name: faker.person.firstName(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         avatar: faker.image.avatar(),
@@ -29,43 +29,60 @@ async function seedDatabase() {
 
   console.log(`${users.length} users created.`);
 
-  for (let i = 0; i < users.length; i++) {
-    const user1 = users[i];
-    const user2 = users[(i + 1) % users.length]; // Loop to connect users in pairs
+  const chats = [];
+  for (let i = 0; i < 5; i++) {
+    const chatNameType = faker.number.int({ min: 1, max: 2 });
 
-    await prisma.userFriends.create({
+    const chat = await prisma.chat.create({
       data: {
-        userId: user1.userId,
-        friendId: user2.userId,
+        chatId: uuidv4(),
+        name: chatNameType === 1 ? faker.lorem.words(4) : '',
+        avatar: faker.image.avatar(),
       },
     });
-    console.log(`Friendship created between ${user1.name} and ${user2.name}`);
+
+    chats.push(chat);
   }
 
-  const chat = await prisma.chat.create({
-    data: {
-      name: faker.lorem.words(3),
-      avatar: '',
-    },
-  });
+  console.log(`Chats created`);
 
-  console.log(`Chat created: ${chat.name}`);
+  for (let i = 0; i < chats.length; i++) {
+    const amountOfUsers = faker.number.int({ min: 3, max: 5 });
+    const pickedChat = chats[i];
+    const pickedUsers = faker.helpers.shuffle(users).slice(0, amountOfUsers);
 
-  for (let i = 0; i < 10; i++) {
-    const message = await prisma.chatMessage.create({
-      data: {
-        chatId: chat.chatId,
-        userId: users[faker.number.int({ min: 0, max: users.length - 1 })].userId,
-        chatUsers: {
-          create: {
-            chatId: chat.chatId,
-            userId: users[faker.number.int({ min: 0, max: users.length - 1 })].userId,
-            isViewed: faker.datatype.boolean(),
-          },
+    const chatUsers = [];
+    for (let pickedUser of pickedUsers) {
+      const chatUser = await prisma.chatUser.create({
+        data: {
+          chatId: pickedChat.chatId,
+          userId: pickedUser.userId,
+          isViewed: false,
         },
-      },
-    });
-    console.log(`Message created by User ${message.userId} in Chat ${chat.chatId}`);
+      });
+      chatUsers.push(chatUser);
+    }
+
+    for (let chatUser of chatUsers) {
+      const amountOfMessages = faker.number.int({ min: 1, max: 5 });
+      for (let k = 0; k < amountOfMessages; k++) {
+        await prisma.chatMessage.create({
+          data: {
+            message: faker.lorem.sentence(),
+            chat: {
+              connect: {
+                chatId: pickedChat.chatId,
+              }
+            },
+            chatUser: {
+              connect: {
+                chatUserId: chatUser.chatUserId,
+              }
+            },
+          },
+        });
+      }
+    }
   }
 
   console.log('Seeding complete!');
