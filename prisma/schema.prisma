@@ -15,8 +15,7 @@ model User {
   avatar      String?
   friends     UserFriends[] @relation("UserToFriends")
   friendOf    UserFriends[] @relation("FriendToUser")
-  ChatUsers   ChatUser[]
-  ChatMessages ChatMessage[]
+  ChatUsers   ChatUser[]    // Correct relation for users in multiple chats
 }
 
 model UserFriends {
@@ -37,21 +36,20 @@ model Chat {
 }
 
 model ChatMessage {
-  chatMessageId String  @id @default(uuid())
-  chat          Chat    @relation(fields: [chatId], references: [chatId])
-  chatId        String
-  user          User    @relation(fields: [userId], references: [userId])
-  userId        String
-  chatUsers     ChatUser[]
+  chatMessageId String    @id @default(uuid())
+  message       String
+  chatUser      ChatUser? @relation(fields: [chatUserId], references: [chatUserId])  // A message belongs to one ChatUser
+  chatUserId    String?
+  chat          Chat?      @relation(fields: [chatId], references: [chatId])  // A message belongs to one Chat
+  chatId        String?
 }
 
 model ChatUser {
-  chatUserId     String      @id @default(uuid())
-  chatMessage    ChatMessage @relation(fields: [chatMessageId], references: [chatMessageId])
-  chatMessageId  String      @unique
-  chat           Chat        @relation(fields: [chatId], references: [chatId])
-  chatId         String
-  user           User        @relation(fields: [userId], references: [userId])
-  userId         String
-  isViewed       Boolean
+  chatUserId    String     @id @default(uuid())
+  chat          Chat       @relation(fields: [chatId], references: [chatId])  // A user belongs to one Chat
+  chatId        String
+  user          User       @relation(fields: [userId], references: [userId])  // A user belongs to one User
+  userId        String
+  isViewed      Boolean
+  chatMessages  ChatMessage[]
 }
