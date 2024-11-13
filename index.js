@@ -1,45 +1,32 @@
 const express = require('express');
 const { Pool } = require('pg');
 require('dotenv').config();
+const authRoutes = require('./routes/authRoutes');
+const chatRoutes = require('./routes/chatRoutes.js');
 
 const { seedDatabase } = require('./seed.js');
-
 const app = express();
 const PORT = 3000;
 
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_DATABASE,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
+app.use(express.json());
 
-pool.connect((err, client, release) => {
-  if (err) {
-    return console.error('Error acquiring client', err.stack);
-  }
-  client.query('SELECT NOW()', (err, result) => {
-    release();
-    if (err) {
-      return console.error('Error executing query', err.stack);
-    }
-    console.log('Connection to PostgreSQL successful:', result.rows);
-  });
-});
+app.use('/auth', authRoutes);
+app.use('/chat', chatRoutes);
 
 app.get('/seed', async (req, res) => {
   try {
-    await seedDatabase();
+    await seedDatabase().catch((error) => {
+      console.log('error');
+      console.log(error);
+    });
     res.send('Database seeded successfully!');
   } catch (error) {
-    console.error('Error seeding the database:', error);
-    res.status(500).send('Error seeding the database');
+    res.status(500).send(error);
   }
 });
 
 app.get('/', (req, res) => {
-  res.send('Hello, Express with PostgreSQL!');
+  res.send('Hello, Express with PostgreSQL and Prisma!');
 });
 
 app.listen(PORT, () => {
