@@ -13,7 +13,7 @@ const loginUser = async (req, res) => {
 };
 
 const getUserById = async (req, res) => {
-  const { userId } = req.params;
+  const { userId } = req.body;
 
   try {
     const user = await userModel.findUserById(userId);
