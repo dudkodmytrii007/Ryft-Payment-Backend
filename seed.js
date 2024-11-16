@@ -22,6 +22,7 @@ async function seedDatabase() {
         password: faker.internet.password(),
         avatar: faker.image.avatar(),
         userId: uuidv4(),
+        isOnline: false,
       },
     });
     users.push(user);

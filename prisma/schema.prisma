@@ -13,9 +13,11 @@ model User {
   email       String       @unique
   password    String
   avatar      String?
+  isOnline    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
   friends     UserFriends[] @relation("UserToFriends")
   friendOf    UserFriends[] @relation("FriendToUser")
-  ChatUsers   ChatUser[]    // Correct relation for users in multiple chats
+  ChatUsers   ChatUser[]
 }
 
 model UserFriends {
@@ -38,18 +40,19 @@ model Chat {
 model ChatMessage {
   chatMessageId String    @id @default(uuid())
   message       String
-  chatUser      ChatUser? @relation(fields: [chatUserId], references: [chatUserId])  // A message belongs to one ChatUser
+  chatUser      ChatUser? @relation(fields: [chatUserId], references: [chatUserId])
   chatUserId    String?
-  chat          Chat?      @relation(fields: [chatId], references: [chatId])  // A message belongs to one Chat
+  chat          Chat?      @relation(fields: [chatId], references: [chatId])
   chatId        String?
 }
 
 model ChatUser {
   chatUserId    String     @id @default(uuid())
-  chat          Chat       @relation(fields: [chatId], references: [chatId])  // A user belongs to one Chat
+  chat          Chat       @relation(fields: [chatId], references: [chatId])
   chatId        String
-  user          User       @relation(fields: [userId], references: [userId])  // A user belongs to one User
+  user          User       @relation(fields: [userId], references: [userId])
   userId        String
   isViewed      Boolean
+  lastViewedDate  DateTime  @default(now()) 
   chatMessages  ChatMessage[]
 }

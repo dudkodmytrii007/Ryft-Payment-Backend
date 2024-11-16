@@ -1,37 +1,82 @@
 const { PrismaClient } = require('@prisma/client');
+const { findUserById } = require('../models/userModel');
 const prisma = new PrismaClient();
 
 const findUserChat = async (req, res) => {
-  const { userId } = req.params;
+  const { userId } = req.body;
 
   try {
-    // Find all ChatUser instances where the userId is assigned
     const foundChatUserInstances = await prisma.chatUser.findMany({
-      where: { userId }
+      where: { userId },
     });
 
     if (foundChatUserInstances && foundChatUserInstances.length > 0) {
-      // Use Promise.all to wait for all the asynchronous calls to complete
-      const chatsPromises = foundChatUserInstances.map(async (foundChatUserInstance) => {
-        const chatId = foundChatUserInstance.chatId;
+      const chatResults = await Promise.all(
+        foundChatUserInstances.map(async (foundChatUserInstance) => {
+          const chat = await prisma.chat.findUnique({
+            where: {
+              chatId: foundChatUserInstance.chatId,
+            },
+          });
+          return chat;
+        })
+      );
 
-        // Fetch chat details for each chatId
-        const foundChatInstance = await prisma.chat.findFirst({
-          where: { chatId }
+      const resultObjects = [];
+
+      for (const chatResult of chatResults) {
+        let chatName = '';
+        let isAnyUserOnline = false;
+        let lastUsersActivityDatesArray = [];
+
+        if (chatResult.name === '') {
+          let isAnyUserOnline = false;
+          const usersLastActivityDate = [];
+          const chatUsers = await prisma.chatUser.findMany({
+            where: {
+              chatId: chatResult.chatId,
+            },
+          });
+
+          const chatUsersNames = await Promise.all(
+            chatUsers
+            .filter((user) => user.userId != userId)
+            .map(async (chatUser) => {
+              const foundChatUser = await findUserById(chatUser.userId);
+
+              if (foundChatUser.isOnline) {
+                isAnyUserOnline = true;
+              }
+
+              usersLastActivityDate.push(chatUser.lastViewedDate);
+
+              return foundChatUser.name;
+            })
+          );
+
+          chatName = chatUsersNames.join(', ');
+          isAnyUserOnline = this.isAnyUserOnline;
+          usersLastActivityDate.sort((a, b) => new Date(b) - new Date(a));
+          lastUsersActivityDatesArray = usersLastActivityDate.slice(0, 1)[0];
+        } else {
+          chatName = chatResult.name;
+        }
+
+        resultObjects.push({
+          chatId: chatResult.chatId,
+          avatar: chatResult.avatar,
+          name: chatName,
+          isAnyUserOnline,
+          lastUsersActivityDatesArray
         });
+      }
 
-        return foundChatInstance;
-      });
-
-      // Wait for all the promises to resolve
-      const chats = await Promise.all(chatsPromises);
-
-      res.status(200).json(foundChatUserInstances); // Send response once all chats are fetched
+      res.status(200).json(resultObjects);
     } else {
-      res.status(200).json([]); // Return an empty array if no chats are found
+      res.status(200).json([]);
     }
   } catch (error) {
-    console.error("Error fetching user chats:", error);
+    console.error('Error fetching user chats:', error);
     res.status(500).json({ error: 'Error retrieving user chats' });
   }
 };
