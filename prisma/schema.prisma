@@ -15,18 +15,14 @@ model User {
   avatar      String?
   isOnline    Boolean      @default(false)
   createdAt   DateTime     @default(now())
-  friends     UserFriends[] @relation("UserToFriends")
-  friendOf    UserFriends[] @relation("FriendToUser")
   ChatUsers   ChatUser[]
 }
 
-model UserFriends {
-  userId    String @id
-  friendId  String
-  user      User   @relation("UserToFriends", fields: [userId], references: [userId])
-  friend    User   @relation("FriendToUser", fields: [friendId], references: [userId])
-
-  @@unique([userId, friendId])
+model Friendships {
+  friendshipId    String  @id @default(uuid())
+  userId          String
+  friendId        String
+  createdAt       DateTime  @default(now())
 }
 
 model Chat {
