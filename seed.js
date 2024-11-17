@@ -8,7 +8,7 @@ async function seedDatabase() {
   await prisma.chatUser.deleteMany({});
   await prisma.chatMessage.deleteMany({});
   await prisma.chat.deleteMany({});
-  await prisma.userFriends.deleteMany({});
+  await prisma.friendships.deleteMany({});
   await prisma.user.deleteMany({});
 
   console.log('All data has been deleted from tables.');
@@ -84,6 +84,38 @@ async function seedDatabase() {
         });
       }
     }
+  }
+
+  for (const user of users) {
+    const friendIds = getRandomFriends(users, user.userId, 4, 6);
+
+    for (const friendId of friendIds) {
+      const existingFriendship = await prisma.friendships.findFirst({
+        where: {
+          OR: [
+            { userId: user.userId, friendId },
+            { userId: friendId, friendId: user.userId },
+          ],
+        },
+      });
+
+      if (!existingFriendship) {
+        await prisma.friendships.create({
+          data: {
+            friendshipId: uuidv4(),
+            userId: user.userId,
+            friendId: friendId
+          }
+        })
+      }
+    }
+  }
+
+  function getRandomFriends(users, currentUserId, min, max) {
+    const otherUsers = users.filter(user => user.userId !== currentUserId);
+    const numFriends = faker.number.int({ min, max });
+    const shuffled = faker.helpers.shuffle(otherUsers);
+    return shuffled.slice(0, numFriends).map(user => user.userId);
   }
 
   console.log('Seeding complete!');
