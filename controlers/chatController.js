@@ -81,4 +81,43 @@ const findUserChat = async (req, res) => {
   }
 };
 
-module.exports = { findUserChat };
+const getFriendsOfGivenUser = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    const friendships = await prisma.friendships.findMany({
+      where: {
+        OR: [
+          { userId },
+          { friendId: userId },
+        ],
+      },
+    });
+
+    const uniqueFriendships = await Promise.all(friendships.map(async (friendship) => {
+      const friendId = [friendship.friendId, friendship.userId];
+      const filtredFriendId = friendId.filter(id => id !== userId);
+      const friendUserData = await prisma.user.findFirst({
+        where: {
+          userId: filtredFriendId[0]
+        }
+      });
+
+      return {
+        friendshipId: friendship.friendshipId,
+        userId: friendship.userId,
+        friendUserData: friendUserData,
+        friendId: friendship.friendId,
+        createdAt: friendship.createdAt,
+      };
+    }));
+
+    return res.status(200).json(uniqueFriendships);
+
+  } catch (error) {
+    console.error('Error fetching friendships:', error);
+    return res.status(500).json({ message: 'An error occurred while fetching friendships.' });
+  }
+};
+
+module.exports = { findUserChat, getFriendsOfGivenUser };
