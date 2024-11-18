@@ -49,7 +49,7 @@ npx prisma migrate dev
 npm run seed  
 ```
 
-**5.** Compile and Hot-Reload for Development
+**5.** Start the server
 ```sh
-npm run dev
+node index.js
 ```
