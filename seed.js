@@ -13,6 +13,11 @@ async function seedDatabase() {
 
   console.log('All data has been deleted from tables.');
 
+  const logos = [
+    'https://zagrano.pl/wp-content/uploads/2020/06/CD-Projekt-RED-lgbt-a.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/1200px-Bitcoin.svg.png'
+  ]
+
   const users = [];
   for (let i = 0; i < 20; i++) {
     const user = await prisma.user.create({
@@ -20,7 +25,7 @@ async function seedDatabase() {
         name: faker.person.firstName(),
         email: faker.internet.email(),
         password: faker.internet.password(),
-        avatar: faker.image.avatar(),
+        avatar: logos[faker.number.int({ min: 0, max: 1})],
         userId: uuidv4(),
         isOnline: false,
       },
