@@ -1,9 +1,10 @@
 const express = require('express');
 const cors = require('cors');
-const { Pool } = require('pg');
 require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chatRoutes.js');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swaggerConfig');
 
 const { seedDatabase } = require('./seed.js');
 const app = express();
@@ -11,9 +12,9 @@ const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
-
 app.use('/auth', authRoutes);
 app.use('/chat', chatRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get('/seed', async (req, res) => {
   try {
