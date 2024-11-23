@@ -12,6 +12,18 @@ const loginUser = async (req, res) => {
   }
 };
 
+const logoutUser = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    await userModel.logoutUser(userId);
+
+    res.status(200).json();
+  } catch (error) {
+    res.status(401).json();
+  }
+}
+
 const getUserById = async (req, res) => {
   const { userId } = req.body;
 
@@ -27,4 +39,4 @@ const getUserById = async (req, res) => {
   }
 };
 
-module.exports = { loginUser, getUserById };
+module.exports = { loginUser, getUserById, logoutUser };
