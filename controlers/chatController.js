@@ -27,7 +27,8 @@ const findUserChat = async (req, res) => {
       for (const chatResult of chatResults) {
         let chatName = '';
         let isAnyUserOnline = false;
-        let lastUsersActivityDatesArray = [];
+        let lastUsersActivityDatesArray = '';
+        let chatMessages = [];
 
         if (chatResult.name === '') {
           let isAnyUserOnline = false;
@@ -62,12 +63,50 @@ const findUserChat = async (req, res) => {
           chatName = chatResult.name;
         }
 
+        const currentChatUser = await prisma.chatUser.findMany({
+          where: {
+              userId: userId,
+              chatId: chatResult.chatId
+            }
+        });
+
+        chatMessages = await prisma.chatMessage.findMany({
+          where: {
+            chatId: chatResult.chatId,
+            createdAt: {
+              gt: currentChatUser[0].lastViewedDate,
+            },
+            chatUserId: {
+              not: currentChatUser[0].chatUserId,
+            },
+          },
+          orderBy: {
+            createdAt: 'asc'
+          },
+          include: {
+            chatUser: true,
+          },
+        });
+
+        if (
+          chatMessages.length > 0 &&
+          chatMessages[chatMessages.length - 1].chatUserId === currentChatUser[0].chatUserId
+        ) {
+          chatMessages = [];
+        }
+
+        const lastUnreadMessage = (chatMessages.length > 0) ? chatMessages[chatMessages.length - 1].message : '';
+        const lastUnreadMessageAuthor = (chatMessages.length > 0) ? (await findUserById(chatMessages[chatMessages.length - 1].chatUser.userId)).name : '';
+        
         resultObjects.push({
           chatId: chatResult.chatId,
           avatar: chatResult.avatar,
           name: chatName,
           isAnyUserOnline,
-          lastUsersActivityDatesArray
+          lastUsersActivityDatesArray,
+          unreadMessagesAmount: chatMessages.length,
+          lastUnreadMessage,
+          lastUnreadMessageAuthor
         });
       }
 
