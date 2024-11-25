@@ -19,7 +19,7 @@ async function seedDatabase() {
   ]
 
   const users = [];
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 100; i++) {
     const user = await prisma.user.create({
       data: {
         name: faker.person.firstName(),
@@ -36,7 +36,7 @@ async function seedDatabase() {
   console.log(`${users.length} users created.`);
 
   const chats = [];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 250; i++) {
     const chatNameType = faker.number.int({ min: 1, max: 2 });
 
     const chat = await prisma.chat.create({
@@ -53,7 +53,7 @@ async function seedDatabase() {
   console.log(`Chats created`);
 
   for (let i = 0; i < chats.length; i++) {
-    const amountOfUsers = faker.number.int({ min: 3, max: 5 });
+    const amountOfUsers = faker.number.int({ min: 3, max: 10 });
     const pickedChat = chats[i];
     const pickedUsers = faker.helpers.shuffle(users).slice(0, amountOfUsers);
 
@@ -70,7 +70,7 @@ async function seedDatabase() {
     }
 
     for (let chatUser of chatUsers) {
-      const amountOfMessages = faker.number.int({ min: 1, max: 5 });
+      const amountOfMessages = faker.number.int({ min: 1, max: 20 });
       for (let k = 0; k < amountOfMessages; k++) {
         await prisma.chatMessage.create({
           data: {
@@ -92,7 +92,7 @@ async function seedDatabase() {
   }
 
   for (const user of users) {
-    const friendIds = getRandomFriends(users, user.userId, 4, 6);
+    const friendIds = getRandomFriends(users, user.userId, 4, 8);
 
     for (const friendId of friendIds) {
       const existingFriendship = await prisma.friendships.findFirst({
