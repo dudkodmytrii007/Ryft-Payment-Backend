@@ -97,6 +97,7 @@ const findUserChat = async (req, res) => {
 
         const lastUnreadMessage = (chatMessages.length > 0) ? chatMessages[chatMessages.length - 1].message : '';
         const lastUnreadMessageAuthor = (chatMessages.length > 0) ? (await findUserById(chatMessages[chatMessages.length - 1].chatUser.userId)).name : '';
+        const lastUnreadMessageAuthorId = (chatMessages.length > 0) ? (await findUserById(chatMessages[chatMessages.length - 1].chatUser.userId)).userId : '';
         
         resultObjects.push({
           chatId: chatResult.chatId,
@@ -106,7 +107,8 @@ const findUserChat = async (req, res) => {
           lastUsersActivityDatesArray,
           unreadMessagesAmount: chatMessages.length,
           lastUnreadMessage,
-          lastUnreadMessageAuthor
+          lastUnreadMessageAuthor,
+          lastUnreadMessageAuthorId
         });
       }
 
