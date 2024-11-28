@@ -29,6 +29,9 @@ const findUserChat = async (req, res) => {
         let isAnyUserOnline = false;
         let lastUsersActivityDatesArray = '';
         let chatMessages = [];
+        let chatType = '';
+
+        console.log(chatResult);
 
         if (chatResult.name === '') {
           let isAnyUserOnline = false;
@@ -62,6 +65,14 @@ const findUserChat = async (req, res) => {
         } else {
           chatName = chatResult.name;
         }
+
+        const chatUsers = await prisma.chatUser.findMany({
+          where: {
+            chatId: chatResult.chatId,
+          },
+        });
+
+        chatType = chatUsers.filter((chatUser) => chatUser.userId != userId).length > 1 ? 'group' : 'private';
 
         const currentChatUser = await prisma.chatUser.findMany({
           where: {
@@ -103,6 +114,7 @@ const findUserChat = async (req, res) => {
           chatId: chatResult.chatId,
           avatar: chatResult.avatar,
           name: chatName,
+          chatType,
           isAnyUserOnline,
           lastUsersActivityDatesArray,
           unreadMessagesAmount: chatMessages.length,
