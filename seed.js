@@ -53,7 +53,7 @@ async function seedDatabase() {
   console.log(`Chats created`);
 
   for (let i = 0; i < chats.length; i++) {
-    const amountOfUsers = faker.number.int({ min: 3, max: 10 });
+    const amountOfUsers = faker.number.int({ min: 1, max: 5 });
     const pickedChat = chats[i];
     const pickedUsers = faker.helpers.shuffle(users).slice(0, amountOfUsers);
 
