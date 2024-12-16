@@ -26,6 +26,7 @@ async function seedDatabase() {
         email: faker.internet.email(),
         password: faker.internet.password(),
         avatar: logos[faker.number.int({ min: 0, max: 1})],
+        baner: logos[faker.number.int({ min: 0, max: 1})],
         userId: uuidv4(),
         isOnline: false,
       },

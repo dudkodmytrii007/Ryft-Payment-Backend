@@ -216,5 +216,30 @@ async function toggleUserInChatVisibility(req, res) {
 	}
   }
   
+async function getProfileData(req, res) {
+	const { userId } = req.body;
 
-module.exports = { findUserChat, getFriendsOfGivenUser, toggleUserInChatVisibility };
+	const foundUser = await prisma.user.findFirst({
+		where: {
+			userId: userId
+		}
+	})
+
+	if (foundUser) {
+		const transformedFoundUser = {
+			userId: foundUser.userId,
+			name: foundUser.name,
+			avatar: foundUser.avatar,
+			baner: foundUser.baner,
+			isOnline: foundUser.isOnline,
+		}
+
+		return res.status(200).json(transformedFoundUser);
+	}
+	else {
+		return res.status(404).json();
+	}
+
+}
+
+module.exports = { findUserChat, getFriendsOfGivenUser, toggleUserInChatVisibility, getProfileData };
