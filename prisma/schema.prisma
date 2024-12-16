@@ -44,12 +44,13 @@ model ChatMessage {
 }
 
 model ChatUser {
-  chatUserId    String     @id @default(uuid())
-  chat          Chat       @relation(fields: [chatId], references: [chatId])
-  chatId        String
-  user          User       @relation(fields: [userId], references: [userId])
-  userId        String
-  isViewed      Boolean
-  lastViewedDate  DateTime  @default(now()) 
-  chatMessages  ChatMessage[]
+  chatUserId    	String     @id @default(uuid())
+  chat          	Chat       @relation(fields: [chatId], references: [chatId])
+  chatId        	String
+  user          	User       @relation(fields: [userId], references: [userId])
+  userId        	String
+  isViewed      	Boolean
+  isHidden        	Boolean      @default(false)
+  lastViewedDate  	DateTime  @default(now()) 
+  chatMessages  	ChatMessage[]
 }
