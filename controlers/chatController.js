@@ -173,4 +173,40 @@ const getFriendsOfGivenUser = async (req, res) => {
   }
 };
 
-module.exports = { findUserChat, getFriendsOfGivenUser };
+async function toggleUserInChatVisibility(req, res) {
+	const { userId, chatId } = req.body;
+  
+	try {
+	  const foundChatUser = await prisma.chatUser.findFirst({
+		where: {
+		  chatId: chatId,
+		  userId: userId
+		}
+	  });
+  
+	  if (!foundChatUser) {
+		return res.status(404).json({
+		  message: "ChatUser not found"
+		});
+	  }
+  
+	  const updatedChatUser = await prisma.chatUser.update({
+		where: {
+		  chatUserId: foundChatUser.chatUserId
+		},
+		data: {
+		  isHidden: !foundChatUser.isHidden
+		}
+	  });
+  
+	  res.status(200).json();
+	} catch (error) {
+	  console.error(error);
+	  res.status(500).json({
+		message: "Something went wrong"
+	  });
+	}
+  }
+  
+
+module.exports = { findUserChat, getFriendsOfGivenUser, toggleUserInChatVisibility };
