@@ -43,7 +43,7 @@ async function seedDatabase() {
       data: {
         chatId: uuidv4(),
         name: chatNameType === 1 ? faker.lorem.words(4) : '',
-        avatar: faker.image.avatar(),
+        avatar: logos[faker.number.int({ min: 0, max: 1})],
       },
     });
 
@@ -64,6 +64,7 @@ async function seedDatabase() {
           chatId: pickedChat.chatId,
           userId: pickedUser.userId,
           isViewed: false,
+		  isHidden: false
         },
       });
       chatUsers.push(chatUser);
