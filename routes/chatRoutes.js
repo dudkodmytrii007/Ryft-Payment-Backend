@@ -122,4 +122,6 @@ router.post('/getFriends', chatController.getFriendsOfGivenUser);
 router.post('/toggleChatVisibility', chatController.toggleUserInChatVisibility);
 router.post('/getProfile', chatController.getProfileData);
 
+router.post('/getAllUsersFromChat', chatController.getAllUsersFromChat);
+
 module.exports = router;
