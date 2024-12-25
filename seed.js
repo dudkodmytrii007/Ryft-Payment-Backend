@@ -5,18 +5,18 @@ const { v4: uuidv4 } = require('uuid');
 const prisma = new PrismaClient();
 
 async function seedDatabase() {
-	await prisma.chatUser.deleteMany({});
 	await prisma.chatMessage.deleteMany({});
-	await prisma.chat.deleteMany({});
-	await prisma.friendships.deleteMany({});
-	await prisma.user.deleteMany({});
-	await prisma.chatUserVisibilityState.deleteMany({});
+    await prisma.chatUserVisibilityState.deleteMany({});
+    await prisma.chatUser.deleteMany({});
+    await prisma.chat.deleteMany({});
+    await prisma.friendships.deleteMany({});
+    await prisma.user.deleteMany({});
 
 	console.log('All data has been deleted from tables.');
 
 	const logos = [
 		'https://zagrano.pl/wp-content/uploads/2020/06/CD-Projekt-RED-lgbt-a.jpg',
-		'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/1200px-Bitcoin.svg.png'
+		'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/1200px-Bitcoin.svg.png',
 	];
 
 	const users = [];
@@ -40,33 +40,36 @@ async function seedDatabase() {
 	const chats = [];
 	for (let i = 0; i < 250; i++) {
 		const chatNameType = faker.number.int({ min: 1, max: 2 });
-
+		const chatType = 'group';
 		const chat = await prisma.chat.create({
 			data: {
 				chatId: uuidv4(),
-				name: chatNameType === 1 ? faker.lorem.words(4) : '',
+				name: chatType === 'group' ? faker.lorem.words(4) : '',
 				avatar: logos[faker.number.int({ min: 0, max: 1 })],
+				type: chatType,
 			},
 		});
-
 		chats.push(chat);
 	}
 
 	console.log(`Chats created`);
 
 	for (let i = 0; i < chats.length; i++) {
-		const amountOfUsers = faker.number.int({ min: 1, max: 5 });
 		const pickedChat = chats[i];
+		const amountOfUsers = faker.number.int({ min: 1, max: 5 });
 		const pickedUsers = faker.helpers.shuffle(users).slice(0, amountOfUsers);
 
 		const chatUsers = [];
+		let roleAssigned = false;
+
 		for (let pickedUser of pickedUsers) {
 			const chatUser = await prisma.chatUser.create({
 				data: {
 					chatId: pickedChat.chatId,
 					userId: pickedUser.userId,
 					isViewed: false,
-					isHidden: false
+					isHidden: false,
+					role: roleAssigned ? 'user' : (roleAssigned = true ? 'owner' : 'admin'),
 				},
 			});
 			chatUsers.push(chatUser);
@@ -89,12 +92,12 @@ async function seedDatabase() {
 						chat: {
 							connect: {
 								chatId: pickedChat.chatId,
-							}
+							},
 						},
 						chatUser: {
 							connect: {
 								chatUserId: chatUser.chatUserId,
-							}
+							},
 						},
 					},
 				});
@@ -120,9 +123,9 @@ async function seedDatabase() {
 					data: {
 						friendshipId: uuidv4(),
 						userId: user.userId,
-						friendId: friendId
-					}
-				})
+						friendId: friendId,
+					},
+				});
 			}
 		}
 	}
