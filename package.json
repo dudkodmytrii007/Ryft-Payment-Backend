@@ -20,12 +20,12 @@
     "jsonwebtoken": "^9.0.2",
     "nodemon": "^3.1.7",
     "pg": "^8.13.1",
-    "prisma": "^5.22.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
+    "prisma": "^6.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   }
