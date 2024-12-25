@@ -239,7 +239,39 @@ async function getProfileData(req, res) {
 	else {
 		return res.status(404).json();
 	}
-
 }
 
-module.exports = { findUserChat, getFriendsOfGivenUser, toggleUserInChatVisibility, getProfileData };
+async function getAllUsersFromChat(req, res) {
+	const { chatId } = req.body;
+
+	try {
+		const chatExists = await prisma.chat.findUnique({
+			where: { chatId },
+		});
+
+		if (!chatExists) {
+			return res.status(404).json({ message: 'Chat not found' });
+		}
+
+		const users = await prisma.chatUser.findMany({
+			where: { chatId },
+			include: {
+				user: true,
+			},
+		});
+
+		const userDetails = users.map((chatUser) => ({
+			userId: chatUser.user.userId,
+			name: chatUser.user.name,
+			avatar: chatUser.user.avatar,
+			isOnline: chatUser.user.isOnline,
+		}));
+
+		res.status(200).json(userDetails);
+	} catch (error) {
+		console.error('Error fetching users from chat:', error);
+		res.status(500).json({ message: 'An error occurred while fetching users from the chat.' });
+	}
+}
+
+module.exports = { findUserChat, getFriendsOfGivenUser, toggleUserInChatVisibility, getProfileData, getAllUsersFromChat };
