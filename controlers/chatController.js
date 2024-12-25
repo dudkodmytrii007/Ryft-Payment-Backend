@@ -319,4 +319,110 @@ async function toggleUserInChatHiddenState(req, res) {
 	}
 }
 
-module.exports = { findUserChat, getFriendsOfGivenUser, toggleUserInChatVisibility, getProfileData, getAllUsersFromChat, toggleUserInChatHiddenState };
+async function createChat(req, res) {
+	const userIds = req.body.userIds;
+	const chatType = userIds.length >= 3 ? "group" : "private";
+
+	try {
+		if (chatType === "private" && userIds.length === 2) {
+			const existingChat = await prisma.chat.findFirst({
+				where: {
+					type: "private",
+					chatUsers: {
+						every: {
+							userId: { in: userIds },
+						},
+					},
+					AND: [
+						{
+							chatUsers: {
+								some: { userId: userIds[0] },
+							},
+						},
+						{
+							chatUsers: {
+								some: { userId: userIds[1] },
+							},
+						},
+					],
+				},
+				include: {
+					chatUsers: true,
+				},
+			});
+
+			if (existingChat && existingChat.chatUsers.length === 2) {
+				return res.status(400).json({
+					message: "Private chat already exists between these two users",
+				});
+			}
+		}
+
+		const userNames = await prisma.user.findMany({
+			where: {
+				userId: { in: userIds },
+			},
+			select: {
+				name: true,
+			},
+		});
+
+		const chatName = chatType === "group"
+			? "Group Chat"
+			: `Private Chat (${userNames.map(user => user.name).join(", ")})`;
+
+		const newChat = await prisma.chat.create({
+			data: {
+				name: chatName,
+				type: chatType,
+			},
+		});
+
+		for (let i = 0; i < userIds.length; i++) {
+			const userId = userIds[i];
+
+			const user = await prisma.user.findUnique({
+				where: { userId },
+			});
+
+			if (!user) {
+				return res.status(404).json({ message: `User with ID ${userId} not found` });
+			}
+
+			const role = i === 0 ? "owner" : "user";
+
+			await prisma.chatUser.create({
+				data: {
+					chatId: newChat.chatId,
+					userId,
+					isViewed: false,
+					visibilityState: {
+						create: {
+							state: true,
+						},
+					},
+					role,
+				},
+			});
+		}
+
+		return res.status(201).json({
+			message: "Chat created successfully",
+			chat: newChat,
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ message: "Internal server error" });
+	}
+}
+
+
+module.exports = { 
+	findUserChat, 
+	getFriendsOfGivenUser, 
+	toggleUserInChatVisibility, 
+	getProfileData, 
+	getAllUsersFromChat, 
+	toggleUserInChatHiddenState, 
+	createChat 
+};
