@@ -416,6 +416,59 @@ async function createChat(req, res) {
 	}
 }
 
+async function removeChat(req, res) {
+	const { userId, chatId } = req.body;
+
+	try {
+		const chatUser = await prisma.chatUser.findFirst({
+			where: {
+				chatId,
+				userId,
+				role: "owner",
+			},
+		});
+
+		if (!chatUser) {
+			return res.status(403).json({
+				message: "You are not the owner of this chat or not a part of it.",
+			});
+		}
+
+		await prisma.ChatUserVisibilityState.deleteMany({
+			where: {
+				chatUser: {
+					chatId,
+				},
+			},
+		});
+
+		await prisma.chatMessage.deleteMany({
+			where: {
+				chatId,
+			},
+		});
+
+		await prisma.chatUser.deleteMany({
+			where: {
+				chatId,
+			},
+		});
+
+		await prisma.chat.delete({
+			where: {
+				chatId,
+			},
+		});
+
+		return res.status(200).json({
+			message: "Chat and all related records successfully deleted.",
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ message: "Internal server error" });
+	}
+}
+
 
 module.exports = { 
 	findUserChat, 
@@ -424,5 +477,6 @@ module.exports = {
 	getProfileData, 
 	getAllUsersFromChat, 
 	toggleUserInChatHiddenState, 
-	createChat 
+	createChat,
+	removeChat
 };
