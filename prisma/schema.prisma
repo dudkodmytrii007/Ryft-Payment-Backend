@@ -32,6 +32,7 @@ model Chat {
   avatar    String?
   chatUsers ChatUser[]
   messages  ChatMessage[]
+  type      String		@default("group")
 }
 
 model ChatMessage {
@@ -55,6 +56,7 @@ model ChatUser {
   lastViewedDate  	DateTime  @default(now()) 
   chatMessages  	ChatMessage[]
   visibilityState 	ChatUserVisibilityState?
+  role           	String     @default("user")
 }
 
 model ChatUserVisibilityState {
