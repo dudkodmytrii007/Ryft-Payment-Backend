@@ -1,18 +1,18 @@
 const prisma = require('../prismaClient');
 
-const createUser = async (userData) => {
+async function createUser(userData) {
   return await prisma.user.create({
     data: userData,
   });
-};
+}
 
-const findUserByEmail = async (email) => {
+async function findUserByEmail(email) {
   return await prisma.user.findUnique({
     where: { email },
   });
-};
+}
 
-const loginUser = async (email, password) => {
+async function loginUser(email, password) {
   const user = await findUserByEmail(email);
 
   if (!user) {
@@ -23,41 +23,41 @@ const loginUser = async (email, password) => {
     throw new Error('Invalid password');
   }
 
-  const updatedUser =  await prisma.user.update({
+  const updatedUser = await prisma.user.update({
     where: {
       userId: user.userId,
     },
     data: {
-      isOnline: true
-    }
-  })
+      isOnline: true,
+    },
+  });
 
   return updatedUser;
-};
+}
 
-const logoutUser = async (userId) => {
+async function logoutUser(userId) {
   const user = await findUserById(userId);
 
   if (!user) {
     throw new Error('User not found');
   }
 
-  const updatedUser =  await prisma.user.update({
+  const updatedUser = await prisma.user.update({
     where: {
       userId: userId,
     },
     data: {
-      isOnline: false
-    }
-  })
+      isOnline: false,
+    },
+  });
 
   return updatedUser;
 }
 
-const findUserById = async (userId) => {
+async function findUserById(userId) {
   return await prisma.user.findUnique({
     where: { userId },
   });
-};
+}
 
 module.exports = { createUser, findUserByEmail, loginUser, findUserById, logoutUser };
