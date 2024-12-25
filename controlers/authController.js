@@ -1,6 +1,6 @@
 const userModel = require('../models/userModel');
 
-const loginUser = async (req, res) => {
+async function loginUser(req, res) {
   const { email, password } = req.body;
 
   try {
@@ -10,9 +10,9 @@ const loginUser = async (req, res) => {
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
-};
+}
 
-const logoutUser = async (req, res) => {
+async function logoutUser(req, res) {
   const { userId } = req.body;
 
   try {
@@ -24,7 +24,7 @@ const logoutUser = async (req, res) => {
   }
 }
 
-const getUserById = async (req, res) => {
+async function getUserById(req, res) {
   const { userId } = req.body;
 
   try {
@@ -37,6 +37,6 @@ const getUserById = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Error retrieving user' });
   }
-};
+}
 
 module.exports = { loginUser, getUserById, logoutUser };

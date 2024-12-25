@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const { findUserById } = require('../models/userModel');
 const prisma = new PrismaClient();
 
-const findUserChat = async (req, res) => {
+async function findUserChat(req, res) {
   const { userId } = req.body;
 
   try {
@@ -140,9 +140,9 @@ const findUserChat = async (req, res) => {
     console.error('Error fetching user chats:', error);
     res.status(500).json({ error: 'Error retrieving user chats' });
   }
-};
+}
 
-const getFriendsOfGivenUser = async (req, res) => {
+async function getFriendsOfGivenUser(req, res) {
   const { userId } = req.body;
 
   try {
@@ -179,7 +179,7 @@ const getFriendsOfGivenUser = async (req, res) => {
     console.error('Error fetching friendships:', error);
     return res.status(500).json({ message: 'An error occurred while fetching friendships.' });
   }
-};
+}
 
 async function toggleUserInChatVisibility(req, res) {
 	const { userId, chatId } = req.body;
