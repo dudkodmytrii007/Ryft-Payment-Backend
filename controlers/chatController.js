@@ -274,4 +274,49 @@ async function getAllUsersFromChat(req, res) {
 	}
 }
 
-module.exports = { findUserChat, getFriendsOfGivenUser, toggleUserInChatVisibility, getProfileData, getAllUsersFromChat };
+async function toggleUserInChatHiddenState(req, res) {
+	const { userId, chatId } = req.body;
+
+	try {
+		const chatUser = await prisma.chatUser.findFirst({
+			where: {
+				userId: userId,
+				chatId: chatId,
+			},
+		});
+
+		if (!chatUser) {
+			return res.status(404).json({ message: 'Chat user not found.' });
+		}
+
+		const visibilityState = await prisma.chatUserVisibilityState.findUnique({
+			where: {
+				chatUserId: chatUser.chatUserId,
+			},
+		});
+
+		if (!visibilityState) {
+			return res.status(404).json({ message: 'Visibility state not found.' });
+		}
+
+		const updatedState = await prisma.chatUserVisibilityState.update({
+			where: {
+				chatUserId: chatUser.chatUserId,
+			},
+			data: {
+				state: !visibilityState.state,
+				lastUpdatedAt: new Date(),
+			},
+		});
+
+		return res.status(200).json({
+			message: 'Visibility state toggled successfully.',
+			newState: updatedState.state,
+		});
+	} catch (error) {
+		console.error('Error toggling visibility state:', error);
+		return res.status(500).json({ message: 'Internal server error.' });
+	}
+}
+
+module.exports = { findUserChat, getFriendsOfGivenUser, toggleUserInChatVisibility, getProfileData, getAllUsersFromChat, toggleUserInChatHiddenState };

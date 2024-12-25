@@ -54,4 +54,12 @@ model ChatUser {
   isHidden        	Boolean      @default(false)
   lastViewedDate  	DateTime  @default(now()) 
   chatMessages  	ChatMessage[]
+  visibilityState 	ChatUserVisibilityState?
+}
+
+model ChatUserVisibilityState {
+	chatUserId     String   @id
+	chatUser       ChatUser @relation(fields: [chatUserId], references: [chatUserId])
+	state          Boolean
+	lastUpdatedAt  DateTime @default(now())
 }

@@ -123,5 +123,6 @@ router.post('/toggleChatVisibility', chatController.toggleUserInChatVisibility);
 router.post('/getProfile', chatController.getProfileData);
 
 router.post('/getAllUsersFromChat', chatController.getAllUsersFromChat);
+router.post('/toggleUserInChatVisibilityState', chatController.toggleUserInChatHiddenState);
 
 module.exports = router;
