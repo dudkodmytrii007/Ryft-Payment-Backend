@@ -17,21 +17,21 @@ app.use('/chat', chatRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get('/seed', async (req, res) => {
-  try {
-    await seedDatabase().catch((error) => {
-      console.log('error');
-      console.log(error);
-    });
-    res.send('Database seeded successfully!');
-  } catch (error) {
-    res.status(500).send(error);
-  }
+	try {
+		await seedDatabase().catch((error) => {
+			console.log('error');
+			console.log(error);
+		});
+		res.send('Database seeded successfully!');
+	} catch (error) {
+	 	res.status(500).send(error);
+	}
 });
 
 app.get('/', (req, res) => {
-  res.send('Hello, Express with PostgreSQL and Prisma!');
+	res.send('Hello, Express with PostgreSQL and Prisma!');
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+	console.log(`Server is running on http://localhost:${PORT}`);
 });
