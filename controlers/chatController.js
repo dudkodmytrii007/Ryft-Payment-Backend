@@ -469,6 +469,46 @@ async function removeChat(req, res) {
 	}
 }
 
+async function getChatMessage(req, res) {
+    try {
+        const { chatId, userId } = req.params;
+
+        const chat = await prisma.chat.findUnique({
+            where: { chatId },
+            include: { chatUsers: true }
+        });
+        if (!chat) {
+            return res.status(404).json({ message: 'Chat not found' });
+        }
+
+        const isUserInChat = chat.chatUsers.some(chatUser => chatUser.userId === userId);
+        if (!isUserInChat) {
+            return res.status(403).json({ message: 'User not in chat' });
+        }
+
+        const messages = await prisma.chatMessage.findMany({
+            where: { chatId },
+            include: {
+                chatUser: {
+                    include: {
+                        user: true
+                    }
+                }
+            }
+        });
+
+        const formattedMessages = messages.map(message => ({
+            text: message.message,
+            author: message.chatUser.user.nickname,
+            id: message.chatMessageId,
+            date: message.createdAt
+        }));
+
+        return res.status(200).json(formattedMessages);
+    } catch (error) {
+        return res.status(500).json({ message: 'Server error', error });
+    }
+};
 
 module.exports = { 
 	findUserChat, 
@@ -478,5 +518,6 @@ module.exports = {
 	getAllUsersFromChat, 
 	toggleUserInChatHiddenState, 
 	createChat,
-	removeChat
+	removeChat,
+	getChatMessage
 };

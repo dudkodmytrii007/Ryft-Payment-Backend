@@ -126,5 +126,6 @@ router.post('/getAllUsersFromChat', chatController.getAllUsersFromChat);
 router.post('/toggleUserInChatVisibilityState', chatController.toggleUserInChatHiddenState);
 router.post('/createChat', chatController.createChat);
 router.post('/removeChat', chatController.removeChat);
+router.post('/getChatMessages', chatController.getChatMessage);
 
 module.exports = router;
