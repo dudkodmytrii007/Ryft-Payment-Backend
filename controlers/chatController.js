@@ -471,7 +471,7 @@ async function removeChat(req, res) {
 
 async function getChatMessage(req, res) {
     try {
-        const { chatId, userId } = req.params;
+        const { chatId, userId } = req.body;
 
         const chat = await prisma.chat.findUnique({
             where: { chatId },
