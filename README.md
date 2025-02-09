@@ -22,7 +22,7 @@ To ensure the proper functioning of the platform, the **[Ryft Frontend](https://
 
 **1.** Clone the repository:
 ```sh
-git clone https://github.com/your-username/ryft-backend.git  
+git clone https://github.com/Xdellta/Ryft-Backend.git  
 cd ryft-backend
 ```
 
