@@ -14,20 +14,18 @@ async function seedDatabase() {
 
 	console.log('All data has been deleted from tables.');
 
-	const logos = [
-		'https://zagrano.pl/wp-content/uploads/2020/06/CD-Projekt-RED-lgbt-a.jpg',
-		'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/1200px-Bitcoin.svg.png',
-	];
-
 	const users = [];
 	for (let i = 0; i < 100; i++) {
+		const githubAvatarId = faker.number.int({ min: 1, max: 100 }); // Losowy ID użytkownika GitHub
+		const avatarUrl = `https://avatars.githubusercontent.com/u/${githubAvatarId}`;
+
 		const user = await prisma.user.create({
 			data: {
 				name: faker.person.firstName(),
 				email: faker.internet.email(),
 				password: faker.internet.password(),
-				avatar: logos[faker.number.int({ min: 0, max: 1 })],
-				baner: logos[faker.number.int({ min: 0, max: 1 })],
+				avatar: avatarUrl,
+				baner: avatarUrl,
 				userId: uuidv4(),
 				isOnline: false,
 			},
@@ -39,13 +37,15 @@ async function seedDatabase() {
 
 	const chats = [];
 	for (let i = 0; i < 250; i++) {
-		const chatNameType = faker.number.int({ min: 1, max: 2 });
 		const chatType = 'group';
+		const githubAvatarId = faker.number.int({ min: 1, max: 100 });
+		const avatarUrl = `https://avatars.githubusercontent.com/u/${githubAvatarId}`;
+
 		const chat = await prisma.chat.create({
 			data: {
 				chatId: uuidv4(),
 				name: chatType === 'group' ? faker.lorem.words(4) : '',
-				avatar: logos[faker.number.int({ min: 0, max: 1 })],
+				avatar: avatarUrl,
 				type: chatType,
 			},
 		});
