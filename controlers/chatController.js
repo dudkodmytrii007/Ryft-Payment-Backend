@@ -472,7 +472,7 @@ async function removeChat(req, res) {
 
 async function getChatMessage(req, res) {
     try {
-        const { chatId, userId } = req.body;
+        const { chatId, userId, page = 1, pageSize = 20 } = req.body;
 
         const chat = await prisma.chat.findUnique({
             where: { chatId },
@@ -495,7 +495,12 @@ async function getChatMessage(req, res) {
                         user: true
                     }
                 }
-            }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            skip: (page - 1) * pageSize,
+            take: pageSize
         });
 
         const formattedMessages = messages.map(message => ({
