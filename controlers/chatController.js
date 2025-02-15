@@ -265,6 +265,7 @@ async function getAllUsersFromChat(req, res) {
 			name: chatUser.user.name,
 			avatar: chatUser.user.avatar,
 			isOnline: chatUser.user.isOnline,
+			role: chatUser.role
 		}));
 
 		res.status(200).json(userDetails);
