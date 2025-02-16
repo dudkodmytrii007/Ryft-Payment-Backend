@@ -504,9 +504,11 @@ async function getChatMessage(req, res) {
         });
 
         const formattedMessages = messages.map(message => ({
-            text: message.message,
-            author: message.chatUser.user.nickname,
-            id: message.chatMessageId,
+			chatId: message.chatMessageId,
+			authorId: message.chatUser.user.userId,
+			avatar: message.chatUser.user.avatar,
+            name: message.chatUser.user.name,
+			text: message.message,
             date: message.createdAt
         }));
 
