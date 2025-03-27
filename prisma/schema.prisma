@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId      	String       @id @default(uuid())
+  name        	String
+  email       	String       @unique
+  password    	String
+  avatar      	String?
+  baner      	String?
+  isOnline    	Boolean      @default(false)
+  createdAt   	DateTime     @default(now())
+  ChatUsers   	ChatUser[]
+}
+
+model Friendships {
+  friendshipId    String  @id @default(uuid())
+  userId          String
+  friendId        String
+  createdAt       DateTime  @default(now())
+}
+
+model Chat {
+  chatId    String      @id @default(uuid())
+  name      String
+  avatar    String?
+  chatUsers ChatUser[]
+  messages  ChatMessage[]
+  type      String		@default("group")
+}
+
+model ChatMessage {
+  chatMessageId String    @id @default(uuid())
+  message       String
+  chatUser      ChatUser? @relation(fields: [chatUserId], references: [chatUserId])
+  chatUserId    String?
+  chat          Chat?      @relation(fields: [chatId], references: [chatId])
+  chatId        String?
+  createdAt     DateTime  @default(now())
+}
+
+model ChatUser {
+  chatUserId    	String     @id @default(uuid())
+  chat          	Chat       @relation(fields: [chatId], references: [chatId])
+  chatId        	String
+  user          	User       @relation(fields: [userId], references: [userId])
+  userId        	String
+  isViewed      	Boolean
+  isHidden        	Boolean      @default(false)
+  lastViewedDate  	DateTime  @default(now()) 
+  chatMessages  	ChatMessage[]
+  visibilityState 	ChatUserVisibilityState?
+  role           	String     @default("user")
+}
+
+model ChatUserVisibilityState {
+	chatUserId     String   @id
+	chatUser       ChatUser @relation(fields: [chatUserId], references: [chatUserId])
+	state          Boolean
+	lastUpdatedAt  DateTime @default(now())
+}
